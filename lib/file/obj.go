@@ -52,6 +52,7 @@ type Client struct {
 	MaxTunnelNum    int
 	Version         string
 	BlackIpList     []string
+	CreateTime      string
 	LastOnlineTime  string
 	sync.RWMutex
 }
@@ -105,6 +106,14 @@ func (s *Client) HasTunnel(t *Tunnel) (exist bool) {
 func (s *Client) GetTunnelNum() (num int) {
 	GetDb().JsonDb.Tasks.Range(func(key, value interface{}) bool {
 		v := value.(*Tunnel)
+		if v.Client.Id == s.Id {
+			num++
+		}
+		return true
+	})
+
+	GetDb().JsonDb.Hosts.Range(func(key, value interface{}) bool {
+		v := value.(*Host)
 		if v.Client.Id == s.Id {
 			num++
 		}
@@ -174,6 +183,7 @@ type Host struct {
 	KeyFilePath  string
 	NoStore      bool
 	IsClose      bool
+	AutoHttps    bool // 自动https
 	Flow         *Flow
 	Client       *Client
 	Target       *Target //目标
